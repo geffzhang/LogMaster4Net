@@ -41,19 +41,8 @@ namespace LogMaster4Net.MasterServer
 
         protected override void OnStarted()
         {
-            //Task.Factory.StartNew(DoWork);
+            
         }
-
-        //private void DoWork()
-        //{
-        //    var log = LogFactory.GetLog("LogMaster");
-
-        //    while(State == ServerState.Running)
-        //    {
-        //        Thread.Sleep(5000);
-        //        log.InfoFormat("Current Time: {0}", DateTime.Now);
-        //    }
-        //}
 
         protected override void OnStopped()
         {
@@ -68,10 +57,20 @@ namespace LogMaster4Net.MasterServer
             {
                 var loggingData = loggings[i];
 
+                ILog log;
+
                 if (string.IsNullOrEmpty(loggingData.ApplicationName))
-                    LogFactory.GetLog(loggingData.LoggerName).Log(loggingData);
+                    log = LogFactory.GetLog(loggingData.LoggerName);
                 else
-                    LogFactory.GetLog(loggingData.ApplicationName, loggingData.LoggerName).Log(loggingData);
+                    log = LogFactory.GetLog(loggingData.ApplicationName, loggingData.LoggerName);
+
+                if(log == null)
+                {
+                    Logger.ErrorFormat("Failed to find a logger, LogAppName:[{0}], LoggerName: [{1}].", loggingData.ApplicationName, loggingData.LoggerName);
+                    continue;
+                }
+
+                log.Log(loggingData);
             }
         }
     }
